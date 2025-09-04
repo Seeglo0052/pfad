@@ -1,0 +1,44 @@
+Image Download Summary - 2025-09-04 21:53:33.511392
+Source page: https://eldenring.fandom.com/wiki/Fire_Serpent
+Total downloaded: 10 images
+
+1. Elden Ring Wiki
+   URL: https://static.wikia.nocookie.net/eldenring/images/e/e6/Site-logo.png/revision/latest?cb=20210618170948
+   Save path: images\Elden Ring Wiki.jpg
+
+2. Elden Ring Wiki
+   URL: https://static.wikia.nocookie.net/eldenring/images/e/e6/Site-logo.png/revision/latest?cb=20210618170948
+   Save path: images\Elden Ring Wiki_1.jpg
+
+3. ER Icon Spell Fire Serpent
+   URL: https://static.wikia.nocookie.net/eldenring/images/9/91/ER_Icon_Spell_Fire_Serpent.png/revision/latest/scale-to-width-down/268?cb=20240624165929
+   Save path: images\ER Icon Spell Fire Serpent.jpg
+
+4. FP
+   URL: https://static.wikia.nocookie.net/eldenring/images/f/f1/ER_Custom_Stat_Icon_FP.png/revision/latest/scale-to-width-down/14?cb=20240328124436
+   Save path: images\FP.jpg
+
+5. Memory Slots
+   URL: https://static.wikia.nocookie.net/eldenring/images/d/d4/ER_Icon_Key_Item_memory_stone.png/revision/latest/scale-to-width-down/14?cb=20220411010538
+   Save path: images\Memory Slots.jpg
+
+6. Intelligence
+   URL: https://static.wikia.nocookie.net/eldenring/images/c/cd/ER_Custom_Stat_Icon_Intelligence.png/revision/latest/scale-to-width-down/25?cb=20230417222115
+   Save path: images\Intelligence.jpg
+
+7. Fandom logo
+   URL: https://static.wikia.nocookie.net/6a181c72-e8bf-419b-b4db-18fd56a0eb60
+   Save path: images\Fandom logo.jpg
+
+8. Fandom App logo
+   URL: https://static.wikia.nocookie.net/6c42ce6a-b205-41f5-82c6-5011721932e7
+   Save path: images\Fandom App logo.jpg
+
+9. Store icon
+   URL: https://static.wikia.nocookie.net/3f46912f-45a8-47f0-ac9d-6dca02c3a5ca
+   Save path: images\Store icon.jpg
+
+10. Store icon
+   URL: https://static.wikia.nocookie.net/6e8f2e52-ab5a-427f-a836-ab57168161ec
+   Save path: images\Store icon_1.jpg
+
