@@ -1,0 +1,9 @@
+﻿python-dotenv
+requests
+lxml
+matplotlib
+pandas
+numpy
+seaborn
+plotly
+drawsvg

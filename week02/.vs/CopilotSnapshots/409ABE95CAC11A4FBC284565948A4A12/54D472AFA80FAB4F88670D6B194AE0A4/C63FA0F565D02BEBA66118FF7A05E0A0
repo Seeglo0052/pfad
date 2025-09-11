@@ -1,0 +1,282 @@
+﻿import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from matplotlib.patches import Circle
+import seaborn as sns
+from datetime import datetime, timedelta
+import plotly.graph_objects as go
+import plotly.express as px
+from plotly.subplots import make_subplots
+import plotly.offline as pyo
+
+class TidesVisualizer:
+    def __init__(self, csv_file='tides.csv'):
+        """Initialize tides visualizer"""
+        self.df = self.load_data(csv_file)
+        self.prepare_data()
+        
+    def load_data(self, csv_file):
+        """Load CSV data"""
+        try:
+            df = pd.read_csv(csv_file, names=['datetime', 'tide_level'], 
+                           parse_dates=['datetime'])
+            print(f"Successfully loaded {len(df)} records from {csv_file}")
+            return df
+        except Exception as e:
+            print(f"Error loading data: {e}")
+            return None
+            
+    def prepare_data(self):
+        """Prepare data for visualization"""
+        if self.df is None:
+            return
+            
+        # Add time-related columns
+        self.df['hour'] = self.df['datetime'].dt.hour
+        self.df['day'] = self.df['datetime'].dt.day
+        self.df['month'] = self.df['datetime'].dt.month
+        self.df['day_of_year'] = self.df['datetime'].dt.dayofyear
+        
+        # Calculate moving average
+        self.df['tide_smooth'] = self.df['tide_level'].rolling(window=5, center=True).mean()
+        
+        # Normalize tide height to 0-1 range
+        self.df['tide_norm'] = (self.df['tide_level'] - self.df['tide_level'].min()) / \
+                              (self.df['tide_level'].max() - self.df['tide_level'].min())
+    
+    def create_animated_wave(self, save_gif=True):
+        """Create animated wave effect"""
+        if self.df is None:
+            return
+            
+        fig, ax = plt.subplots(figsize=(12, 8), facecolor='black')
+        ax.set_facecolor('black')
+        
+        # Set style
+        plt.style.use('dark_background')
+        
+        # Create time series data
+        x_data = np.linspace(0, 2*np.pi, len(self.df))
+        
+        def animate(frame):
+            ax.clear()
+            ax.set_facecolor('black')
+            
+            # Calculate current frame waves
+            wave1 = self.df['tide_norm'].iloc[:frame+1] * np.sin(x_data[:frame+1] + frame*0.1)
+            wave2 = self.df['tide_norm'].iloc[:frame+1] * np.cos(x_data[:frame+1] + frame*0.1)
+            
+            if len(wave1) > 0:
+                # Draw main wave
+                ax.plot(x_data[:frame+1], wave1, color='cyan', linewidth=2, alpha=0.8)
+                ax.fill_between(x_data[:frame+1], wave1, alpha=0.3, color='cyan')
+                
+                # Draw secondary wave
+                ax.plot(x_data[:frame+1], wave2 * 0.5, color='lightblue', linewidth=1, alpha=0.6)
+                
+                # Add particle effects
+                for i in range(0, len(wave1), 10):
+                    if i < len(wave1):
+                        circle = Circle((x_data[i], wave1.iloc[i]), 0.05, 
+                                      color='white', alpha=0.7)
+                        ax.add_patch(circle)
+            
+            ax.set_xlim(0, 2*np.pi)
+            ax.set_ylim(-1.5, 1.5)
+            ax.set_title('Flowing Tides Visualization', 
+                        color='white', fontsize=16, fontweight='bold')
+            ax.set_xlabel('Time Phase', color='white')
+            ax.set_ylabel('Normalized Tide Level', color='white')
+            ax.grid(True, alpha=0.3)
+            
+        # Create animation
+        frames = min(len(self.df), 200)  # Limit frames to control file size
+        anim = animation.FuncAnimation(fig, animate, frames=frames, 
+                                     interval=100, repeat=True)
+        
+        if save_gif:
+            print("Saving animation GIF...")
+            anim.save('tides_animation.gif', writer='pillow', fps=10)
+            print("Animation saved as tides_animation.gif")
+        
+        plt.show()
+        return anim
+    
+    def create_interactive_plot(self):
+        """Create interactive Plotly chart"""
+        if self.df is None:
+            return
+            
+        # Create subplots
+        fig = make_subplots(
+            rows=2, cols=2,
+            subplot_titles=('Tides Time Series', 'Tide Level Distribution', 'Daily Tide Pattern', '3D Tide Surface'),
+            specs=[[{"secondary_y": False}, {"secondary_y": False}],
+                   [{"secondary_y": False}, {"type": "surface"}]]
+        )
+        
+        # 1. Main tides time series
+        fig.add_trace(
+            go.Scatter(x=self.df['datetime'], y=self.df['tide_level'],
+                      mode='lines', name='Tide Level',
+                      line=dict(color='cyan', width=2)),
+            row=1, col=1
+        )
+        
+        # Add moving average line
+        fig.add_trace(
+            go.Scatter(x=self.df['datetime'], y=self.df['tide_smooth'],
+                      mode='lines', name='Smooth Trend',
+                      line=dict(color='orange', width=3, dash='dash')),
+            row=1, col=1
+        )
+        
+        # 2. Tide level distribution histogram
+        fig.add_trace(
+            go.Histogram(x=self.df['tide_level'], nbinsx=30,
+                        name='Distribution', marker_color='lightblue'),
+            row=1, col=2
+        )
+        
+        # 3. Daily tide pattern heatmap
+        daily_pattern = self.df.groupby(['day', 'hour'])['tide_level'].mean().reset_index()
+        pivot_data = daily_pattern.pivot(index='day', columns='hour', values='tide_level')
+        
+        fig.add_trace(
+            go.Heatmap(z=pivot_data.values,
+                      x=pivot_data.columns,
+                      y=pivot_data.index,
+                      colorscale='Viridis',
+                      name='Daily Pattern'),
+            row=2, col=1
+        )
+        
+        # 4. 3D surface plot
+        X, Y = np.meshgrid(self.df['day_of_year'].unique()[:30], 
+                          self.df['hour'].unique())
+        Z = np.random.rand(len(self.df['hour'].unique()), 30)  # Simplified 3D data
+        
+        fig.add_trace(
+            go.Surface(z=Z, colorscale='Ocean', name='3D Tides'),
+            row=2, col=2
+        )
+        
+        # Update layout
+        fig.update_layout(
+            title_text="Interactive Tides Data Dashboard",
+            title_x=0.5,
+            height=800,
+            showlegend=True,
+            template="plotly_dark"
+        )
+        
+        # Save as HTML file
+        fig.write_html("interactive_tides.html")
+        print("Interactive chart saved as interactive_tides.html")
+        
+        return fig
+    
+    def create_circular_tides(self):
+        """Create circular tides visualization"""
+        if self.df is None:
+            return
+            
+        fig, ax = plt.subplots(figsize=(10, 10), subplot_kw=dict(projection='polar'))
+        fig.patch.set_facecolor('black')
+        ax.set_facecolor('black')
+        
+        # Convert time to angles
+        angles = np.linspace(0, 2*np.pi, len(self.df))
+        
+        # Create multi-layer circular plot
+        for i, radius_mult in enumerate([0.5, 0.7, 1.0]):
+            radius = self.df['tide_level'] * radius_mult
+            colors = plt.cm.plasma(self.df['tide_norm'])
+            
+            ax.scatter(angles, radius, c=colors, s=30, alpha=0.7-i*0.2)
+        
+        # Add connecting lines
+        ax.plot(angles, self.df['tide_level'], color='cyan', alpha=0.8, linewidth=1)
+        
+        ax.set_title('Circular Tides Visualization', 
+                    color='white', fontsize=16, pad=20)
+        ax.grid(True, alpha=0.3)
+        
+        plt.savefig('circular_tides.png', facecolor='black', dpi=300)
+        plt.show()
+    
+    def create_flowing_svg(self):
+        """Create SVG flowing effect"""
+        import drawsvg as draw
+        
+        # Create SVG canvas
+        d = draw.Drawing(800, 400, origin='center')
+        
+        # Background
+        d.append(draw.Rectangle(-400, -200, 800, 400, fill='#001122'))
+        
+        # Generate wave path
+        wave_points = []
+        for i in range(80):
+            x = i * 10 - 400
+            y = 50 * np.sin(i * 0.2) * np.random.uniform(0.8, 1.2)
+            wave_points.extend([x, y])
+        
+        # Main wave
+        d.append(draw.Lines(*wave_points, close=False,
+                           fill='none', stroke='cyan', stroke_width=3, opacity=0.8))
+        
+        # Secondary wave
+        wave_points2 = []
+        for i in range(80):
+            x = i * 10 - 400
+            y = 30 * np.cos(i * 0.3) * np.random.uniform(0.7, 1.3)
+            wave_points2.extend([x, y])
+            
+        d.append(draw.Lines(*wave_points2, close=False,
+                           fill='none', stroke='lightblue', stroke_width=2, opacity=0.6))
+        
+        # Add particles
+        for _ in range(50):
+            x = np.random.uniform(-380, 380)
+            y = np.random.uniform(-180, 180)
+            radius = np.random.uniform(2, 8)
+            d.append(draw.Circle(x, y, radius, fill='white', opacity=0.4))
+        
+        # Add text
+        d.append(draw.Text('Flowing Tides Data Visualization', 20, 0, 150, fill='white', 
+                          text_anchor='middle', font_family='Arial'))
+        
+        d.save_svg('flowing_tides.svg')
+        print("SVG flowing effect saved as flowing_tides.svg")
+        
+    def generate_all_visualizations(self):
+        """Generate all visualization effects"""
+        print("Starting tides visualization...")
+        
+        print("\n1. Creating animated wave effect...")
+        self.create_animated_wave()
+        
+        print("\n2. Creating interactive chart...")
+        self.create_interactive_plot()
+        
+        print("\n3. Creating circular tides plot...")
+        self.create_circular_tides()
+        
+        print("\n4. Creating SVG flowing effect...")
+        self.create_flowing_svg()
+        
+        print("\nAll visualizations completed!")
+
+def main():
+    """Main function"""
+    visualizer = TidesVisualizer()
+    
+    if visualizer.df is not None:
+        visualizer.generate_all_visualizations()
+    else:
+        print("Unable to load data, please check if tides.csv file exists")
+
+if __name__ == "__main__":
+    main()

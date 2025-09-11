@@ -1,0 +1,191 @@
+﻿#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Tides Data Visualization Project Main Runner
+
+This script integrates all tides data collection, processing and visualization functions
+"""
+
+import sys
+import os
+import subprocess
+import time
+
+def check_dependencies():
+    """Check if dependencies are installed"""
+    print("Checking dependencies...")
+    
+    required_packages = [
+        'matplotlib', 'pandas', 'numpy', 'seaborn', 
+        'plotly', 'drawsvg', 'requests', 'lxml', 'python-dotenv'
+    ]
+    
+    missing_packages = []
+    
+    for package in required_packages:
+        try:
+            __import__(package.replace('-', '_'))
+            print(f"✓ {package} installed")
+        except ImportError:
+            missing_packages.append(package)
+            print(f"✗ {package} missing")
+    
+    if missing_packages:
+        print(f"\nNeed to install missing packages: {', '.join(missing_packages)}")
+        print("Run: pip install -r requirements.txt")
+        return False
+    
+    return True
+
+def install_dependencies():
+    """Install dependency packages"""
+    print("Installing dependency packages...")
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
+        print("Dependencies installation completed!")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to install dependencies: {e}")
+        return False
+
+def run_data_collection():
+    """Run data collection"""
+    print("\n" + "="*50)
+    print("Step 1: Collecting tide data")
+    print("="*50)
+    
+    try:
+        exec(open('plot_tides.py').read())
+        print("Data collection completed!")
+        return True
+    except Exception as e:
+        print(f"Data collection failed: {e}")
+        return False
+
+def run_enhanced_visualization():
+    """Run enhanced visualization"""
+    print("\n" + "="*50)
+    print("Step 2: Creating enhanced visualizations")
+    print("="*50)
+    
+    try:
+        exec(open('enhanced_tides_visualization.py').read())
+        print("Enhanced visualization completed!")
+        return True
+    except Exception as e:
+        print(f"Enhanced visualization failed: {e}")
+        return False
+
+def run_svg_creation():
+    """Run SVG creation"""
+    print("\n" + "="*50)
+    print("Step 3: Creating SVG animations")
+    print("="*50)
+    
+    try:
+        exec(open('draw_svg.py').read())
+        print("SVG animation creation completed!")
+        return True
+    except Exception as e:
+        print(f"SVG creation failed: {e}")
+        return False
+
+def show_results():
+    """Show generated files"""
+    print("\n" + "="*50)
+    print("Generated visualization files:")
+    print("="*50)
+    
+    files_to_check = [
+        ('tides.csv', 'Tides data CSV file'),
+        ('tides_basic_plot.png', 'Basic tides chart'),
+        ('tides_animation.gif', 'Animated wave effect'),
+        ('interactive_tides.html', 'Interactive dashboard'),
+        ('circular_tides.png', 'Circular tides plot'),
+        ('flowing_tides.svg', 'SVG flowing effect'),
+        ('flowing_tides_enhanced.svg', 'Enhanced SVG animation'),
+        ('tide_clock.svg', 'Tide clock SVG')
+    ]
+    
+    existing_files = []
+    for filename, description in files_to_check:
+        if os.path.exists(filename):
+            file_size = os.path.getsize(filename)
+            print(f"✓ {filename} ({description}) - {file_size} bytes")
+            existing_files.append(filename)
+        else:
+            print(f"✗ {filename} ({description}) - Not generated")
+    
+    return existing_files
+
+def open_interactive_files():
+    """Open interactive files"""
+    interactive_files = ['interactive_tides.html']
+    
+    for filename in interactive_files:
+        if os.path.exists(filename):
+            print(f"\nTrying to open {filename} in browser...")
+            try:
+                import webbrowser
+                webbrowser.open(f'file://{os.path.abspath(filename)}')
+                print(f"Opened {filename} in browser")
+            except Exception as e:
+                print(f"Cannot automatically open browser: {e}")
+                print(f"Please manually open file: {os.path.abspath(filename)}")
+
+def main():
+    """Main function"""
+    print("🌊 Tides Data Visualization Project 🌊")
+    print("="*60)
+    
+    # Check dependencies
+    if not check_dependencies():
+        print("\nDo you want to automatically install dependencies? (y/n): ", end="")
+        response = input().lower().strip()
+        
+        if response in ['y', 'yes']:
+            if not install_dependencies():
+                print("Installation failed, please manually run: pip install -r requirements.txt")
+                return
+        else:
+            print("Please install dependencies first: pip install -r requirements.txt")
+            return
+    
+    print("\nStarting complete visualization pipeline...")
+    time.sleep(1)
+    
+    # Step 1: Data collection
+    if run_data_collection():
+        time.sleep(2)
+        
+        # Step 2: Enhanced visualization
+        if run_enhanced_visualization():
+            time.sleep(2)
+            
+            # Step 3: SVG creation
+            run_svg_creation()
+    
+    # Show results
+    print("\n" + "="*60)
+    existing_files = show_results()
+    
+    if existing_files:
+        print(f"\n🎉 Successfully generated {len(existing_files)} visualization files!")
+        
+        # Try to open interactive files
+        open_interactive_files()
+        
+        print("\n📋 Usage Instructions:")
+        print("- View tides_basic_plot.png for basic data analysis")
+        print("- Open interactive_tides.html for interactive dashboard")
+        print("- View tides_animation.gif for animation effects")
+        print("- View various SVG files for different artistic effects")
+        
+    else:
+        print("\n❌ No files were successfully generated, please check error messages")
+    
+    print("\n" + "="*60)
+    print("Project execution completed! Thank you for using the Tides Data Visualization System!")
+
+if __name__ == "__main__":
+    main()

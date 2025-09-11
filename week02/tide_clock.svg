@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="400" height="400" viewBox="-200.0 -200.0 400 400">
+<defs>
+</defs>
+<circle cx="0" cy="0" r="180" fill="#001122" stroke="#004466" stroke-width="4" />
+<path d="M160.0,0.0 L140.0,0.0" stroke="white" stroke-width="2" />
+<text x="130.0" y="0.0" font-size="12" fill="white" text-anchor="middle" font-family="Arial">12</text>
+<path d="M138.5640646055102,79.99999999999999 L121.24355652982142,69.99999999999999" stroke="white" stroke-width="2" />
+<text x="112.58330249197704" y="64.99999999999999" font-size="12" fill="white" text-anchor="middle" font-family="Arial">1</text>
+<path d="M80.00000000000001,138.56406460551017 L70.00000000000001,121.2435565298214" stroke="white" stroke-width="2" />
+<text x="65.00000000000001" y="112.58330249197702" font-size="12" fill="white" text-anchor="middle" font-family="Arial">2</text>
+<path d="M9.797174393178826e-15,160.0 L8.572527594031473e-15,140.0" stroke="white" stroke-width="2" />
+<text x="7.960204194457796e-15" y="130.0" font-size="12" fill="white" text-anchor="middle" font-family="Arial">3</text>
+<path d="M-79.99999999999997,138.5640646055102 L-69.99999999999997,121.24355652982142" stroke="white" stroke-width="2" />
+<text x="-64.99999999999997" y="112.58330249197704" font-size="12" fill="white" text-anchor="middle" font-family="Arial">4</text>
+<path d="M-138.5640646055102,79.99999999999999 L-121.24355652982142,69.99999999999999" stroke="white" stroke-width="2" />
+<text x="-112.58330249197704" y="64.99999999999999" font-size="12" fill="white" text-anchor="middle" font-family="Arial">5</text>
+<path d="M-160.0,1.9594348786357652e-14 L-140.0,1.7145055188062946e-14" stroke="white" stroke-width="2" />
+<text x="-130.0" y="1.592040838891559e-14" font-size="12" fill="white" text-anchor="middle" font-family="Arial">6</text>
+<path d="M-138.56406460551017,-80.00000000000001 L-121.2435565298214,-70.00000000000001" stroke="white" stroke-width="2" />
+<text x="-112.58330249197702" y="-65.00000000000001" font-size="12" fill="white" text-anchor="middle" font-family="Arial">7</text>
+<path d="M-80.00000000000007,-138.56406460551017 L-70.00000000000006,-121.24355652982139" stroke="white" stroke-width="2" />
+<text x="-65.00000000000006" y="-112.58330249197701" font-size="12" fill="white" text-anchor="middle" font-family="Arial">8</text>
+<path d="M-2.9391523179536473e-14,-160.0 L-2.5717582782094416e-14,-140.0" stroke="white" stroke-width="2" />
+<text x="-2.3880612583373385e-14" y="-130.0" font-size="12" fill="white" text-anchor="middle" font-family="Arial">9</text>
+<path d="M80.00000000000001,-138.56406460551017 L70.00000000000001,-121.2435565298214" stroke="white" stroke-width="2" />
+<text x="65.00000000000001" y="-112.58330249197702" font-size="12" fill="white" text-anchor="middle" font-family="Arial">10</text>
+<path d="M138.56406460551014,-80.00000000000007 L121.24355652982138,-70.00000000000006" stroke="white" stroke-width="2" />
+<text x="112.583302491977" y="-65.00000000000006" font-size="12" fill="white" text-anchor="middle" font-family="Arial">11</text>
+<path d="M0,0 L70.71067811865476,70.71067811865476" stroke="cyan" stroke-width="6" />
+<circle cx="70.71067811865476" cy="70.71067811865476" r="8" fill="cyan" />
+<circle cx="0" cy="0" r="10" fill="white" />
+<text x="0" y="-220" font-size="16" fill="white" text-anchor="middle" font-family="Arial">Tide Clock</text>
+</svg>

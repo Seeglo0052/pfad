@@ -1,0 +1,193 @@
+﻿#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+潮汐数据可视化项目主运行脚本
+Tides Data Visualization Project Main Runner
+
+这个脚本整合了所有潮汐数据收集、处理和可视化功能
+"""
+
+import sys
+import os
+import subprocess
+import time
+
+def check_dependencies():
+    """检查依赖是否已安装"""
+    print("检查依赖包...")
+    
+    required_packages = [
+        'matplotlib', 'pandas', 'numpy', 'seaborn', 
+        'plotly', 'drawsvg', 'requests', 'lxml', 'python-dotenv'
+    ]
+    
+    missing_packages = []
+    
+    for package in required_packages:
+        try:
+            __import__(package.replace('-', '_'))
+            print(f"✓ {package} 已安装")
+        except ImportError:
+            missing_packages.append(package)
+            print(f"✗ {package} 缺失")
+    
+    if missing_packages:
+        print(f"\n需要安装缺失的包: {', '.join(missing_packages)}")
+        print("运行: pip install -r requirements.txt")
+        return False
+    
+    return True
+
+def install_dependencies():
+    """安装依赖包"""
+    print("正在安装依赖包...")
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
+        print("依赖包安装完成！")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"安装依赖包失败: {e}")
+        return False
+
+def run_data_collection():
+    """运行数据收集"""
+    print("\n" + "="*50)
+    print("步骤 1: 收集潮汐数据")
+    print("="*50)
+    
+    try:
+        exec(open('plot_tides.py').read())
+        print("数据收集完成！")
+        return True
+    except Exception as e:
+        print(f"数据收集失败: {e}")
+        return False
+
+def run_enhanced_visualization():
+    """运行增强可视化"""
+    print("\n" + "="*50)
+    print("步骤 2: 创建增强可视化")
+    print("="*50)
+    
+    try:
+        exec(open('enhanced_tides_visualization.py').read())
+        print("增强可视化完成！")
+        return True
+    except Exception as e:
+        print(f"增强可视化失败: {e}")
+        return False
+
+def run_svg_creation():
+    """运行SVG创建"""
+    print("\n" + "="*50)
+    print("步骤 3: 创建SVG动画")
+    print("="*50)
+    
+    try:
+        exec(open('draw_svg.py').read())
+        print("SVG动画创建完成！")
+        return True
+    except Exception as e:
+        print(f"SVG创建失败: {e}")
+        return False
+
+def show_results():
+    """显示生成的文件"""
+    print("\n" + "="*50)
+    print("生成的可视化文件:")
+    print("="*50)
+    
+    files_to_check = [
+        ('tides.csv', '潮汐数据CSV文件'),
+        ('tides_basic_plot.png', '基础潮汐图表'),
+        ('tides_animation.gif', '动画波浪效果'),
+        ('interactive_tides.html', '交互式仪表板'),
+        ('circular_tides.png', '圆形潮汐图'),
+        ('flowing_tides.svg', 'SVG流动效果'),
+        ('flowing_tides_enhanced.svg', '增强SVG动画'),
+        ('tide_clock.svg', '潮汐时钟SVG')
+    ]
+    
+    existing_files = []
+    for filename, description in files_to_check:
+        if os.path.exists(filename):
+            file_size = os.path.getsize(filename)
+            print(f"✓ {filename} ({description}) - {file_size} bytes")
+            existing_files.append(filename)
+        else:
+            print(f"✗ {filename} ({description}) - 未生成")
+    
+    return existing_files
+
+def open_interactive_files():
+    """打开交互式文件"""
+    interactive_files = ['interactive_tides.html']
+    
+    for filename in interactive_files:
+        if os.path.exists(filename):
+            print(f"\n尝试在浏览器中打开 {filename}...")
+            try:
+                import webbrowser
+                webbrowser.open(f'file://{os.path.abspath(filename)}')
+                print(f"已在浏览器中打开 {filename}")
+            except Exception as e:
+                print(f"无法自动打开浏览器: {e}")
+                print(f"请手动打开文件: {os.path.abspath(filename)}")
+
+def main():
+    """主函数"""
+    print("🌊 潮汐数据可视化项目 🌊")
+    print("🌊 Tides Data Visualization Project 🌊")
+    print("="*60)
+    
+    # 检查依赖
+    if not check_dependencies():
+        print("\n是否要自动安装依赖包? (y/n): ", end="")
+        response = input().lower().strip()
+        
+        if response in ['y', 'yes', '是']:
+            if not install_dependencies():
+                print("安装失败，请手动运行: pip install -r requirements.txt")
+                return
+        else:
+            print("请先安装依赖包: pip install -r requirements.txt")
+            return
+    
+    print("\n开始运行完整的可视化流程...")
+    time.sleep(1)
+    
+    # 步骤1: 数据收集
+    if run_data_collection():
+        time.sleep(2)
+        
+        # 步骤2: 增强可视化
+        if run_enhanced_visualization():
+            time.sleep(2)
+            
+            # 步骤3: SVG创建
+            run_svg_creation()
+    
+    # 显示结果
+    print("\n" + "="*60)
+    existing_files = show_results()
+    
+    if existing_files:
+        print(f"\n🎉 成功生成了 {len(existing_files)} 个可视化文件!")
+        
+        # 尝试打开交互式文件
+        open_interactive_files()
+        
+        print("\n📋 使用说明:")
+        print("- 查看 tides_basic_plot.png 了解基础数据分析")
+        print("- 打开 interactive_tides.html 查看交互式仪表板")
+        print("- 查看 tides_animation.gif 观看动画效果")
+        print("- 查看各种 SVG 文件了解不同的艺术效果")
+        
+    else:
+        print("\n❌ 没有成功生成任何文件，请检查错误信息")
+    
+    print("\n" + "="*60)
+    print("项目运行完成！感谢使用潮汐数据可视化系统！")
+
+if __name__ == "__main__":
+    main()

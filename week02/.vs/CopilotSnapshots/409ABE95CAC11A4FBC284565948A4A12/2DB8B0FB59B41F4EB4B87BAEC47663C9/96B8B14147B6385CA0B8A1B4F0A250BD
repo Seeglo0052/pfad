@@ -1,0 +1,282 @@
+﻿import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from matplotlib.patches import Circle
+import seaborn as sns
+from datetime import datetime, timedelta
+import plotly.graph_objects as go
+import plotly.express as px
+from plotly.subplots import make_subplots
+import plotly.offline as pyo
+
+class TidesVisualizer:
+    def __init__(self, csv_file='tides.csv'):
+        """初始化潮汐可视化器"""
+        self.df = self.load_data(csv_file)
+        self.prepare_data()
+        
+    def load_data(self, csv_file):
+        """加载CSV数据"""
+        try:
+            df = pd.read_csv(csv_file, names=['datetime', 'tide_level'], 
+                           parse_dates=['datetime'])
+            print(f"Successfully loaded {len(df)} records from {csv_file}")
+            return df
+        except Exception as e:
+            print(f"Error loading data: {e}")
+            return None
+            
+    def prepare_data(self):
+        """准备数据进行可视化"""
+        if self.df is None:
+            return
+            
+        # 添加时间相关的列
+        self.df['hour'] = self.df['datetime'].dt.hour
+        self.df['day'] = self.df['datetime'].dt.day
+        self.df['month'] = self.df['datetime'].dt.month
+        self.df['day_of_year'] = self.df['datetime'].dt.dayofyear
+        
+        # 计算移动平均
+        self.df['tide_smooth'] = self.df['tide_level'].rolling(window=5, center=True).mean()
+        
+        # 归一化潮汐高度到0-1范围
+        self.df['tide_norm'] = (self.df['tide_level'] - self.df['tide_level'].min()) / \
+                              (self.df['tide_level'].max() - self.df['tide_level'].min())
+    
+    def create_animated_wave(self, save_gif=True):
+        """创建动画波浪效果"""
+        if self.df is None:
+            return
+            
+        fig, ax = plt.subplots(figsize=(12, 8), facecolor='black')
+        ax.set_facecolor('black')
+        
+        # 设置样式
+        plt.style.use('dark_background')
+        
+        # 创建时间序列数据
+        x_data = np.linspace(0, 2*np.pi, len(self.df))
+        
+        def animate(frame):
+            ax.clear()
+            ax.set_facecolor('black')
+            
+            # 计算当前帧的波浪
+            wave1 = self.df['tide_norm'].iloc[:frame+1] * np.sin(x_data[:frame+1] + frame*0.1)
+            wave2 = self.df['tide_norm'].iloc[:frame+1] * np.cos(x_data[:frame+1] + frame*0.1)
+            
+            if len(wave1) > 0:
+                # 绘制主波浪
+                ax.plot(x_data[:frame+1], wave1, color='cyan', linewidth=2, alpha=0.8)
+                ax.fill_between(x_data[:frame+1], wave1, alpha=0.3, color='cyan')
+                
+                # 绘制副波浪
+                ax.plot(x_data[:frame+1], wave2 * 0.5, color='lightblue', linewidth=1, alpha=0.6)
+                
+                # 添加粒子效果
+                for i in range(0, len(wave1), 10):
+                    if i < len(wave1):
+                        circle = Circle((x_data[i], wave1.iloc[i]), 0.05, 
+                                      color='white', alpha=0.7)
+                        ax.add_patch(circle)
+            
+            ax.set_xlim(0, 2*np.pi)
+            ax.set_ylim(-1.5, 1.5)
+            ax.set_title('潮汐流动可视化 - Flowing Tides Visualization', 
+                        color='white', fontsize=16, fontweight='bold')
+            ax.set_xlabel('时间相位 (Time Phase)', color='white')
+            ax.set_ylabel('归一化潮汐高度 (Normalized Tide Level)', color='white')
+            ax.grid(True, alpha=0.3)
+            
+        # 创建动画
+        frames = min(len(self.df), 200)  # 限制帧数以控制文件大小
+        anim = animation.FuncAnimation(fig, animate, frames=frames, 
+                                     interval=100, repeat=True)
+        
+        if save_gif:
+            print("正在保存动画GIF...")
+            anim.save('tides_animation.gif', writer='pillow', fps=10)
+            print("动画已保存为 tides_animation.gif")
+        
+        plt.show()
+        return anim
+    
+    def create_interactive_plot(self):
+        """创建交互式Plotly图表"""
+        if self.df is None:
+            return
+            
+        # 创建子图
+        fig = make_subplots(
+            rows=2, cols=2,
+            subplot_titles=('潮汐时间序列', '潮汐水平分布', '每日潮汐模式', '3D潮汐表面'),
+            specs=[[{"secondary_y": False}, {"secondary_y": False}],
+                   [{"secondary_y": False}, {"type": "surface"}]]
+        )
+        
+        # 1. 主要潮汐时间序列
+        fig.add_trace(
+            go.Scatter(x=self.df['datetime'], y=self.df['tide_level'],
+                      mode='lines', name='潮汐高度',
+                      line=dict(color='cyan', width=2)),
+            row=1, col=1
+        )
+        
+        # 添加移动平均线
+        fig.add_trace(
+            go.Scatter(x=self.df['datetime'], y=self.df['tide_smooth'],
+                      mode='lines', name='平滑趋势',
+                      line=dict(color='orange', width=3, dash='dash')),
+            row=1, col=1
+        )
+        
+        # 2. 潮汐水平分布直方图
+        fig.add_trace(
+            go.Histogram(x=self.df['tide_level'], nbinsx=30,
+                        name='分布', marker_color='lightblue'),
+            row=1, col=2
+        )
+        
+        # 3. 每日潮汐模式热图
+        daily_pattern = self.df.groupby(['day', 'hour'])['tide_level'].mean().reset_index()
+        pivot_data = daily_pattern.pivot(index='day', columns='hour', values='tide_level')
+        
+        fig.add_trace(
+            go.Heatmap(z=pivot_data.values,
+                      x=pivot_data.columns,
+                      y=pivot_data.index,
+                      colorscale='Viridis',
+                      name='每日模式'),
+            row=2, col=1
+        )
+        
+        # 4. 3D表面图
+        X, Y = np.meshgrid(self.df['day_of_year'].unique()[:30], 
+                          self.df['hour'].unique())
+        Z = np.random.rand(len(self.df['hour'].unique()), 30)  # 简化的3D数据
+        
+        fig.add_trace(
+            go.Surface(z=Z, colorscale='Ocean', name='3D潮汐'),
+            row=2, col=2
+        )
+        
+        # 更新布局
+        fig.update_layout(
+            title_text="交互式潮汐数据仪表板",
+            title_x=0.5,
+            height=800,
+            showlegend=True,
+            template="plotly_dark"
+        )
+        
+        # 保存为HTML文件
+        fig.write_html("interactive_tides.html")
+        print("交互式图表已保存为 interactive_tides.html")
+        
+        return fig
+    
+    def create_circular_tides(self):
+        """创建圆形潮汐可视化"""
+        if self.df is None:
+            return
+            
+        fig, ax = plt.subplots(figsize=(10, 10), subplot_kw=dict(projection='polar'))
+        fig.patch.set_facecolor('black')
+        ax.set_facecolor('black')
+        
+        # 将时间转换为角度
+        angles = np.linspace(0, 2*np.pi, len(self.df))
+        
+        # 创建多层圆形图
+        for i, radius_mult in enumerate([0.5, 0.7, 1.0]):
+            radius = self.df['tide_level'] * radius_mult
+            colors = plt.cm.plasma(self.df['tide_norm'])
+            
+            ax.scatter(angles, radius, c=colors, s=30, alpha=0.7-i*0.2)
+        
+        # 添加连接线
+        ax.plot(angles, self.df['tide_level'], color='cyan', alpha=0.8, linewidth=1)
+        
+        ax.set_title('圆形潮汐可视化 - Circular Tides', 
+                    color='white', fontsize=16, pad=20)
+        ax.grid(True, alpha=0.3)
+        
+        plt.savefig('circular_tides.png', facecolor='black', dpi=300)
+        plt.show()
+    
+    def create_flowing_svg(self):
+        """创建SVG流动效果"""
+        import drawsvg as draw
+        
+        # 创建SVG画布
+        d = draw.Drawing(800, 400, origin='center')
+        
+        # 背景
+        d.append(draw.Rectangle(-400, -200, 800, 400, fill='#001122'))
+        
+        # 生成波浪路径
+        wave_points = []
+        for i in range(80):
+            x = i * 10 - 400
+            y = 50 * np.sin(i * 0.2) * np.random.uniform(0.8, 1.2)
+            wave_points.extend([x, y])
+        
+        # 主波浪
+        d.append(draw.Lines(*wave_points, close=False,
+                           fill='none', stroke='cyan', stroke_width=3, opacity=0.8))
+        
+        # 副波浪
+        wave_points2 = []
+        for i in range(80):
+            x = i * 10 - 400
+            y = 30 * np.cos(i * 0.3) * np.random.uniform(0.7, 1.3)
+            wave_points2.extend([x, y])
+            
+        d.append(draw.Lines(*wave_points2, close=False,
+                           fill='none', stroke='lightblue', stroke_width=2, opacity=0.6))
+        
+        # 添加粒子
+        for _ in range(50):
+            x = np.random.uniform(-380, 380)
+            y = np.random.uniform(-180, 180)
+            radius = np.random.uniform(2, 8)
+            d.append(draw.Circle(x, y, radius, fill='white', opacity=0.4))
+        
+        # 添加文字
+        d.append(draw.Text('潮汐数据流动可视化', 20, 0, 150, fill='white', 
+                          text_anchor='middle', font_family='Arial'))
+        
+        d.save_svg('flowing_tides.svg')
+        print("SVG流动效果已保存为 flowing_tides.svg")
+        
+    def generate_all_visualizations(self):
+        """生成所有可视化效果"""
+        print("开始生成潮汐可视化...")
+        
+        print("\n1. 创建动画波浪效果...")
+        self.create_animated_wave()
+        
+        print("\n2. 创建交互式图表...")
+        self.create_interactive_plot()
+        
+        print("\n3. 创建圆形潮汐图...")
+        self.create_circular_tides()
+        
+        print("\n4. 创建SVG流动效果...")
+        self.create_flowing_svg()
+        
+        print("\n所有可视化已完成！")
+
+def main():
+    """主函数"""
+    visualizer = TidesVisualizer()
+    
+    if visualizer.df is not None:
+        visualizer.generate_all_visualizations()
+    else:
+        print("无法加载数据，请检查tides.csv文件是否存在")
+
+if __name__ == "__main__":
+    main()
