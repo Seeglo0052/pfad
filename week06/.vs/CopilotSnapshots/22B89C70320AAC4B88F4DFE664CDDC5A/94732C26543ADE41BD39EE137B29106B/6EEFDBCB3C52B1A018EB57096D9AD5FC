@@ -1,0 +1,206 @@
+﻿# 音频处理项目 - 第六周作业
+
+本项目包含各种音频处理应用程序，演示实时音频捕获、处理、可视化和效果。
+
+## 项目结构
+
+### 原始文件（已修复/增强）
+- `1_random_audio.py` - 生成并播放随机音频
+- `2_gen_audio.py` - 使用 AudioLDM2 进行 AI 音频生成
+- `3_synth_audio.py` - 使用 pyo 进行简单音频合成
+- `4a_asyncio_loopback.py` - 使用 asyncio 的音频回环
+- `4b_pyaudio_loopback.py` - 简单音频回环
+- `5_spectrogram.py` - 实时频谱图可视化（已增强）
+- `5_waveform.py` - 实时波形可视化（完全重写并修复）
+- `6a_spectrogram_pygame.py` - 基于 Pygame 的平滑频谱图
+- `6b_spectrogram.py` - 基于 matplotlib 的替代频谱图实现
+- `list_devices.py` - 列出可用音频设备
+
+### 全新创意功能
+- `7_interactive_effects.py` - **交互式音频效果处理器** 🎛️
+- `8_beat_detector.py` - **节拍检测和节奏可视化** 🎵
+- `9_advanced_recorder.py` - **高级多声道音频录音器** 🎙️
+
+## 安装要求
+
+安装所需包：
+
+```bash
+# 基本要求
+pip install -r requirements.txt
+
+# AI 音频生成（可选，需要 CUDA）
+pip install -r torch_requirements.txt
+```
+
+### 依赖包
+- `pyaudio` - 音频输入输出
+- `numpy` - 数值计算
+- `matplotlib` - 绘图和可视化
+- `scipy` - 信号处理
+- `pygame` - 游戏开发库（用于 6a）
+- `pyo` - 数字信号处理
+- `diffusers` - AI 音频生成（可选）
+- `transformers` - AI 模型（可选）
+- `torch` - 深度学习框架（可选）
+
+## 🎯 推荐试用顺序
+
+### 🥇 **最推荐：6a_spectrogram_pygame.py**
+这个是视觉效果最好的！
+```bash
+python 6a_spectrogram_pygame.py
+```
+- 彩色频谱图非常漂亮
+- 实时响应很流畅
+- 有交互控制
+
+### 🥈 **第二推荐：5_spectrogram.py**
+经典的双面板显示：
+```bash
+python 5_spectrogram.py
+```
+- 上方波形，下方频谱图
+- 适合学习音频处理原理
+
+### 🥉 **简单入门：5_waveform.py**
+最简单的波形显示：
+```bash
+python 5_waveform.py
+```
+- 只显示波形
+- 容易理解
+
+## 详细使用指南
+
+### 基础音频应用
+
+#### 1. 随机音频生成器 (`1_random_audio.py`)
+```bash
+python 1_random_audio.py
+```
+生成并播放随机音频噪声。按 Ctrl+C 停止。
+
+#### 2. AI 音频生成 (`2_gen_audio.py`)
+```bash
+python 2_gen_audio.py
+```
+使用 AudioLDM2 从文本描述生成音乐。**需要 CUDA GPU**。
+
+#### 3. 简单合成 (`3_synth_audio.py`)
+```bash
+python 3_synth_audio.py
+```
+播放简单的 440Hz 正弦波，持续 1 秒。
+
+### 实时可视化
+
+#### 6a. Pygame 频谱图 (`6a_spectrogram_pygame.py`) ⭐ **最推荐**
+```bash
+python 6a_spectrogram_pygame.py
+```
+
+**高级功能：**
+- 高性能实时频谱图
+- 平滑颜色过渡和时间平滑
+- 交互控制（↑/↓ 调整平滑度，R 重置）
+- 双重波形和频谱显示
+
+**使用说明：**
+1. 程序打开一个游戏窗口
+2. 上半部分：彩色频谱图
+3. 中间：音频波形
+4. 下方：信息面板
+5. **键盘控制：**
+   - ↑ 增加平滑度（减少闪烁，增加延迟）
+   - ↓ 减少平滑度（更响应，更多闪烁）
+   - R 重置平滑度为默认值
+   - ESC 退出
+
+## 🎛️ 全新：交互式音频效果处理器 (`7_interactive_effects.py`)
+
+**最先进的功能！** 实时音频效果与视觉反馈。
+
+```bash
+python 7_interactive_effects.py
+```
+
+### 控制方式：
+- `R` - 切换混响
+- `E` - 切换回声
+- `F` - 切换滤波器
+- `D` - 切换失真
+- `1-2` - 调整混响衰减
+- `3-4` - 调整回声延迟
+- `5-6` - 调整滤波器截止频率
+- `7` - 循环滤波器类型
+- `8-9` - 调整失真增益
+- `Q` - 退出
+
+## 🎵 全新：节拍检测和节奏可视化 (`8_beat_detector.py`)
+
+具有惊人视觉反馈的高级节拍检测。
+
+```bash
+python 8_beat_detector.py
+```
+
+播放有明显节拍的音乐，观察彩色圆圈与节拍同步出现！
+
+## 🎙️ 全新：高级多声道音频录音器 (`9_advanced_recorder.py`)
+
+具有综合功能的专业级音频录音。
+
+```bash
+python 9_advanced_recorder.py
+```
+
+### 录音控制：
+- `R` - 开始/停止录音
+- `P` - 暂停/恢复录音
+- `S` - 停止当前录音
+- `W` - 将最后录音保存为 WAV 文件
+- `空格` - 播放最后录音
+- `C` - 清除所有录音
+
+## 故障排除
+
+### 常见问题：
+
+1. **"未找到输入设备"**
+   - 运行 `python list_devices.py` 查看可用设备
+   - 确保麦克风已连接并启用
+
+2. **音频反馈/回声**
+   - 使用耳机而不是扬声器
+   - 调整麦克风和扬声器音量
+
+3. **性能问题**
+   - 关闭其他音频应用程序
+   - 使用更快的计算机进行实时处理
+
+4. **导入错误**
+   - 安装缺失包：`pip install package_name`
+   - 使用虚拟环境避免冲突
+
+## 💡 使用建议
+
+1. **先试试最漂亮的**：
+```bash
+python 6a_spectrogram_pygame.py
+```
+   对着麦克风说话或播放音乐，看彩色频谱图的变化
+
+2. **如果想看波形和频谱对比**：
+```bash
+python 5_spectrogram.py
+```
+
+3. **如果只想看简单波形**：
+```bash
+python 5_waveform.py
+```
+
+---
+
+**享受探索音频处理的世界！🎵🔊**
